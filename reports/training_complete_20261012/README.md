@@ -1,6 +1,6 @@
 # Complete training visualization
 
-`training_complete.png` and `.svg` are the original visually checked exports.
+`training_complete.png` and `.svg` are the visually checked English exports.
 `figure_data.json` contains 16 parent epochs and 25 continuation epochs for each
 arm, the selected-checkpoint metrics and fixed tree references.
 Raw per-transaction records and predictions are not included.
@@ -18,14 +18,16 @@ With Python, NumPy and Matplotlib installed, run from the branch root:
 python reports/training_complete_20261012/render_complete.py --output rendered_training_results
 ```
 
-The checked Windows run uses Microsoft YaHei. On another platform pass a local
-Chinese-capable font file with `--font /path/to/font.ttf`. All outputs go into
-the separate folder; the published artifacts are preserved.
+The English renderer defaults to Matplotlib's bundled DejaVu Sans and requires
+no Chinese font. An optional local font file can be supplied with
+`--font /path/to/font.ttf`. All outputs go into the separate folder; the
+published artifacts are preserved. The SVG keeps selectable English text.
 
-`render_complete_original.py` is the unchanged historical renderer used to
-create the published image from local sealed records. The public
-`render_complete.py` keeps its plotting code and reads the exported aggregate
-snapshot and published evidence instead. It verifies complete epoch sequences and
+`render_complete_original.py` preserves the historical data-loading strategy;
+its display text is localized into English. The original frozen code and
+artifacts remain local. The public `render_complete.py` reads the exported
+aggregate snapshot and published evidence, with English labels and adjusted
+spacing for readability. It verifies complete epoch sequences and
 selected-metric consistency before rendering. Reproduction renders saved metrics;
 it does not train, run inference, or independently replicate the model.
 

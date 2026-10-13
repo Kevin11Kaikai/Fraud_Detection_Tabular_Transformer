@@ -61,8 +61,11 @@ validation comparison. No new model run was performed for publication.
 
 `reports/training_complete_20261012/render_complete.py` can reproduce the full
 figure from the published aggregate snapshot, without excluded datasets or
-checkpoints. Its unchanged historical source is next to it as
-`render_complete_original.py`. The figure-specific README documents this small
-input-loading adaptation. The source inventory and adaptation are documented
-in `SOURCE_MANIFEST.json`; historical source copies remain unchanged.
+checkpoints. The historical data-loading strategy is next to it as
+`render_complete_original.py`; its display text is localized into English.
+The figure-specific README documents the input-loading and presentation
+adaptations. The source inventory and adaptations are documented in
+`SOURCE_MANIFEST.json`. Published report generators and narrative reports have
+English text; their training and evaluation logic is preserved. Original frozen
+source files and experiment artifacts remain local.
 Public aggregate records omit local paths and private artifact fingerprints.

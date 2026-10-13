@@ -1,36 +1,36 @@
-# BCE 与 XGBoost 蒸馏配对延长训练
+# Paired extended training: BCE and XGBoost distillation
 
-两组各从第5轮完整检查点恢复，新增共同轮数 20；累计续训 25 轮，加上原父模型共 41 轮。模型、AdamW动量及随机状态均恢复，未重置优化器。
+Both arms resumed from their complete epoch-5 checkpoints, adding 20 matched epochs; total continuation: 25 epochs, or 41 epochs including the parent. Model weights, AdamW momentum and random states were restored without resetting the optimizer.
 
-停止原因：ADDITIONAL_EPOCH_CAP。验证性能稳定规则是否满足：False；这不构成数学收敛证明。
+Stopping reason: ADDITIONAL_EPOCH_CAP. Validation stability rule satisfied: False; this does not establish mathematical convergence.
 
-| 模型 | 起点AP | 延长后所选AP | 所选续训轮次 | Top1%抓获 | Brier |
+| Model | Starting AP | Selected AP after extension | Selected continuation epoch | Fraud found at Top1% | Brier |
 |---|---:|---:|---:|---:|---:|
 | bce_control | 0.614284 | 0.636633 | 22 | 830 | 0.018585 |
 | xgb_kd_lambda1 | 0.613028 | 0.634935 | 22 | 828 | 0.019854 |
 
-蒸馏减BCE的AP差为 -0.001697；保留全部轮次和负结果。交付所选模型为 bce_control，AP=0.636633。
+The distillation-minus-BCE AP difference was -0.001697; all epochs and negative results are retained. The delivered model is bce_control, AP=0.636633.
 
-原强LightGBM AP=0.633859；B1C同输入强对照AP=0.687708。是否超过分别为 True / False。
+Original strong LightGBM AP=0.633859; the strong B1C same-input reference AP=0.687708. Exceeded, respectively: True / False.
 
-两组采用相同输入、335个token、seed42、有效batch256/微批32、BF16、AdamW固定学习率3e-5、原MI加权混合、过去前缀教师及温度1。只有教师损失系数为0或1。每轮采样与混合哈希均匹配。
+Both arms used identical inputs, 335 tokens, seed42, effective batch256/microbatch32, BF16, AdamW at fixed learning rate3e-5, the original MI-weighted mixing, past-prefix teachers and temperature1. Only the teacher-loss coefficient differed (0 or1). Sampling and mixing hashes matched at every epoch.
 
-停止规则在新验证成绩前冻结：至少新增10个共同轮次；之后仅当两组各连续8轮没有大于0.0001的AP提升时共同停止；否则运行至各新增20轮上限或GPU预算上限。每组所选最佳AP包含原第5轮。
+Stopping rules were frozen before new validation scores: run at least 10 additional matched epochs, then stop both arms only after each has 8 consecutive epochs without an AP gain greater than 0.0001; otherwise run to the20-epoch extension cap or GPU budget cap. Selection for each arm also includes its original epoch5.
 
-新增GPU用时 272.72 分钟，新增排队 0.02 分钟；原阶段GPU用时 73.73 分钟，合计 346.45 分钟。旧账本未修改，新增上限 5.00 小时。
+Added GPU time: 272.72 minutes; added queue wait: 0.02 minutes; prior-stage GPU time: 73.73 minutes; total: 346.45 minutes. The old ledger was preserved; the added cap was 5.00 hours.
 
-新建模型并重载两组最佳检查点，重新推理全部88,581行验证集；每个新完整轮次的AP、ROC、Top-K与Brier由另一套NumPy公式复算。原封存证据与原预算保持不变。
+Fresh models reloaded both selected checkpoints and reran inference on all 88,581 validation rows. AP, ROC, Top-K and Brier for every new complete epoch were recomputed using separate NumPy formulas. Original sealed evidence and budgets were preserved.
 
-最终测试与官方无标签测试未访问。验证集已重复用于选择，结论属于单seed开发证据；同一早停条件和完整执行不等于理论收敛、独立泛化认证或部署保证。完整训练分区的输入映射仍不等同于严格流式过去历史预处理。
+Neither the final test split nor the official unlabeled test was accessed in this campaign. Validation was reused for selection, so results are single-seed development evidence. Matched stopping conditions and complete execution do not establish theoretical convergence, independent generalization or deployment guarantees. Input maps fitted on the entire training partition are not strictly past-only streaming preprocessing.
 
-未见UID、identity缺失和五个连续验证时间块全部保留于 temporal_uid_metrics.csv。分层Top-K为组内预算。其他Excel矩阵仍按用户指令暂停，不自动恢复。
+Unseen UID, missing identity and all five chronological validation blocks are retained in temporal_uid_metrics.csv. Stratified Top-K uses within-group budgets. Other Excel experiments remain paused as requested and are not resumed automatically.
 
-## 复现与断点恢复
+## Reproduction and checkpoint recovery
 
-在fraud-detection-mvp根目录使用既有环境：
+Use the existing environment from the original fraud-detection-mvp root:
 
 ```powershell
 & .\.venv\Scripts\python.exe -X utf8 -B -u -m experiments.excel_xgb_convergence_20261012.campaign
 ```
 
-已完成实验只复用；未完成时恢复完整epoch的模型、AdamW与RNG。一组已经完成但另一组尚未完成的配对轮次只补齐后一组，不重复更新前一组。代码、输入、父模型哈希不匹配时停止；中断GPU窗口保守计费，不重置预算。
+Reuse completed experiments. Resume incomplete work with model, AdamW and RNG states from a complete epoch. If one arm has finished a paired epoch, complete only the other arm without repeating the first update. Stop on code, input or parent-model hash mismatch; charge interrupted GPU windows conservatively without resetting budgets.

@@ -158,42 +158,42 @@ def analyze():
 def write_report(frame,effects,strata,decision,checks,protocol):
     elapsed=(datetime.now().astimezone()-datetime.fromisoformat(protocol['started_utc'])).total_seconds()/3600
     hours=float(frame.training_seconds_new.sum())/3600
-    lines=['# identity/UID → FT-Transformer 与 ExcelFormer 完整闭环', '',
-        f"完整16个神经网络条件和8个树模型对照均有有效产物，其中6个树对照复用、2个补齐。新增训练{hours:.2f}小时；总墙钟{elapsed:.2f}小时（含工程、排队、恢复与核验）。", '',
-        f"最佳神经网络：{decision['strongest_neural_trial']}，AP={decision['strongest_neural_ap']:.6f}。最强树对照AP={decision['strongest_tree_ap']:.6f}。是否超过：{decision['exceeds_strongest_tree_on_reused_validation']}。", '',
-        '输入为冻结的191个共同字段，分别增加26个identity、33个UID均值/标准差或13个UID频率/唯一值数量。FT类别embedding与训练集数值变换；Excel采用历史目标编码、训练集MI排序及原feat_mix训练。', '',
-        '## 主结果', '', '| 模型 | 输入 | Seed42 AP | Seed43 AP | 两seed平均 |', '|---|---|---:|---:|---:|']
+    lines=['# Complete identity/UID transfer to FT-Transformer and ExcelFormer', '',
+        f"All16 neural conditions and 8 tree controls have valid artifacts;6 tree controls were reused and 2 completed. Added training: {hours:.2f} hours; total wall-clock time: {elapsed:.2f} hours (including engineering, queue wait, recovery and verification).", '',
+        f"Best neural model: {decision['strongest_neural_trial']}, AP={decision['strongest_neural_ap']:.6f}. Strongest tree control AP={decision['strongest_tree_ap']:.6f}. Exceeded: {decision['exceeds_strongest_tree_on_reused_validation']}.", '',
+        'Inputs start with 191 frozen common fields, adding 26 identity fields,33 UID mean/standard-deviation fields or13 UID frequency/unique-count fields. FT uses categorical embeddings and train-fitted numeric transformations; Excel uses historical target encoding, train-fitted MI ordering and the original feat_mix training.', '',
+        '## Main results', '', '| Model | Inputs | Seed42 AP | Seed43 AP | Two-seed mean |', '|---|---|---:|---:|---:|']
     for arch in ['lgb','ft','excel']:
         for variant in VARIANTS:
             a=frame[(frame.architecture==arch)&(frame.variant==variant)].set_index('seed')
             lines.append(f"| {arch} | {variant} | {a.loc[42,'average_precision']:.6f} | {a.loc[43,'average_precision']:.6f} | {a.average_precision.mean():.6f} |")
-    lines+=['','B00=共同；B10=共同+identity；B1M=共同+identity+UID均值/标准差；B1C=共同+identity+UID频率/唯一值数量。','','## 匹配增量与移植结论','', '| 模型 | 信息增量 | Seed42 ΔAP | Seed43 ΔAP |','|---|---|---:|---:|']
+    lines+=['','B00=common; B10=common+identity; B1M=common+identity+UID mean/standard deviation; B1C=common+identity+UID frequency/unique count.','','## Matched effects and transfer findings','', '| Model | Added information | Seed42 ΔAP | Seed43 ΔAP |','|---|---|---:|---:|']
     for arch in ['ft','excel','lgb']:
         for effect in effects.effect.unique():
             a=effects[(effects.architecture==arch)&(effects.effect==effect)].set_index('seed')
             lines.append(f"| {arch} | {effect} | {a.loc[42,'delta_ap']:+.6f} | {a.loc[43,'delta_ap']:+.6f} |")
-    for arch in ARCHITECTURES:lines+=['',f"{arch} 两seed平均AP所选输入为 {decision['architectures'][arch]['selected_by_two_seed_mean_ap']}。这是使用开发验证集的方案选择，不是独立测试认证。"]
-    lines+=['',f"最强树输入的两seed平均AP={decision['two_seed_comparison']['strongest_tree_mean_ap']:.6f}。"]
+    for arch in ARCHITECTURES:lines+=['',f"{arch} inputs selected by two-seed mean AP: {decision['architectures'][arch]['selected_by_two_seed_mean_ap']}. This is selection using development validation, not independent test certification."]
+    lines+=['',f"Two-seed mean AP for the strongest tree input set={decision['two_seed_comparison']['strongest_tree_mean_ap']:.6f}."]
     for arch in ARCHITECTURES:
         d=decision['two_seed_comparison']['neural'][arch]
-        lines+=[f"{arch} 所选输入两seed平均AP={d['selected_mean_ap']:.6f}，相对最强树平均ΔAP={d['delta_to_strongest_tree_mean']:+.6f}。"]
+        lines+=[f"{arch} selected-input two-seed mean AP={d['selected_mean_ap']:.6f}; mean delta AP against the strongest tree={d['delta_to_strongest_tree_mean']:+.6f}."]
     for context in decision['historical_lightgbm_context']:
-        lines+=[f"历史{context['name']} AP={context['average_precision']:.6f}；本轮最佳神经单trial ΔAP={decision['strongest_neural_ap']-context['average_precision']:+.6f}。历史输入及时间语义不同，保留作原目标背景。"]
-    lines+=['','## UID分层的保留代价','', '| 模型 | Seed | 输入 | 已见UID AP | 未见UID AP |','|---|---:|---|---:|---:|']
+        lines+=[f"Historical {context['name']} AP={context['average_precision']:.6f}; best neural single-trial delta AP in this campaign={decision['strongest_neural_ap']-context['average_precision']:+.6f}. Historical inputs and temporal semantics differ; retained as context for the original target."]
+    lines+=['','## Retained costs by UID stratum','', '| Model | Seed | Inputs | Seen UID AP | Unseen UID AP |','|---|---:|---|---:|---:|']
     for arch in ['ft','excel','lgb']:
         for seed in SEEDS:
             for variant in VARIANTS:
                 a=strata[(strata.architecture==arch)&(strata.seed==seed)&(strata.variant==variant)].set_index('stratum')
                 lines.append(f"| {arch} | {seed} | {variant} | {a.loc['uid_seen','average_precision']:.6f} | {a.loc['uid_unseen','average_precision']:.6f} |")
-    lines+=['','UID为预定义伪UID；不能视为经过核实的真实客户身份。未见组47256行、2091个欺诈全部保留。分层Top-K在组内计算，不等于统一审核预算下的子组召回。','','## 核验、边界与复现','',
-        f"24组全验证预测的AP、ROC、Top-K和Brier经另一套NumPy公式复算。16个神经模型在训练结束后新建模型、重载最佳检查点并重新推理完整验证集；原消融{checks['source_ablation_files_unchanged']}个文件、原始数据与源缓存保持不变。", '',
-        '时间切分为原70/15/15；本轮仅使用413378训练行和88581开发验证行。最终测试与官方无标签测试均未访问。重复使用验证集进行早停/选择属于开发证据；没有独立研究者复现、显著性认证或部署保证。', '',
-        '本轮UID及其他组统计为完整训练分区拟合、验证映射冻结，不能宣称严格过去历史流式性能。对比原横纵特征主线时，时间语义、输入与预处理均有差异，不能只归因于模型架构。', '',
-        'FT固定20轮+1轮SOAP/BCE；Excel固定最多16轮、原warmup/cosine与早停配方。完整执行冻结配方不等于证明已收敛。微批由训练集CUDA预检决定，有效batch保持不变。', '',
-        '所有负增量、未见UID退化、Top-K与Brier代价均保留在effects.csv、strata_metrics.csv和results.csv。不存在依据结果剔除样本、修改目标或追加超参数搜索。', '',
-        '在fraud-detection-mvp根目录运行：', '', '```powershell',
+    lines+=['','UID is a predefined pseudo-UID, not verified customer identity. All47256 unseen-group rows and 2091 fraud cases were retained. Stratified Top-K is computed within groups, not as subgroup recall under a shared investigation budget.','','## Verification, scope and reproduction','',
+        f"AP, ROC, Top-K and Brier for all 24 full-validation predictions were recomputed using separate NumPy formulas. All16 neural models were freshly instantiated after training, reloaded selected checkpoints and reran full-validation inference; the original {checks['source_ablation_files_unchanged']} ablation files, raw data and source caches remained unchanged.", '',
+        'The original 70/15/15 chronological split was preserved, using only 413378 training rows and 88581 development-validation rows. Neither final test nor official unlabeled test was accessed. Reusing validation for stopping/selection is development evidence, without independent replication, significance certification or deployment guarantees.', '',
+        'UID and other grouped statistics were fitted on the entire training partition with frozen validation mappings; this does not establish strictly past-only streaming performance. Temporal semantics, inputs and preprocessing differ from the original horizontal/vertical feature pipeline, so the comparison cannot be attributed solely to architecture.', '',
+        'FT used fixed 20 epochs plus1 SOAP/BCE epoch; Excel used at most16 epochs with the original warmup/cosine and early-stopping recipe. Executing the frozen recipe does not establish convergence. Microbatches came from TRAIN-only CUDA preflight; effective batch size was preserved.', '',
+        'All negative effects, unseen-UID degradation and Top-K/Brier costs are retained in effects.csv, strata_metrics.csv and results.csv. Results were not used to remove samples, change objectives or add hyperparameter searches.', '',
+        'Run from the original fraud-detection-mvp root:', '', '```powershell',
         '& .\\.venv\\Scripts\\python.exe -X utf8 -B -u -m experiments.identity_uid_transformer_transfer_20261011.campaign', '```', '',
-        '已完成条件只核验并复用，未完成条件由匹配指纹的完整epoch检查点续跑；哈希不匹配时直接停止。协议、代码、命令和文件指纹均保存在本实验目录。']
+        'Verify and reuse completed conditions; resume incomplete conditions from a full-epoch checkpoint with matching fingerprints. Stop on any hash mismatch. Protocols, code, commands and file fingerprints are stored in the experiment directory.']
     (HERE/'FINAL_REPORT_ZH.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
 
 

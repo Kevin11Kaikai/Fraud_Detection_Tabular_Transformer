@@ -65,7 +65,11 @@
   ],
   "historical_renderer": "reports/training_complete_20261012/render_complete_original.py",
   "public_renderer": "reports/training_complete_20261012/render_complete.py",
-  "public_renderer_adaptation": "Read aggregate snapshot; compare complete epoch sequences and selected metrics; use a separate output folder",
-  "historical_source_copies_modified": false,
-  "aggregate_metadata_sanitized": true
+  "public_renderer_adaptation": "Read published aggregate snapshot; English labels; portable bundled font; selectable SVG text; adjusted caption spacing",
+  "historical_source_copies_modified": true,
+  "aggregate_metadata_sanitized": true,
+  "historical_source_changes": "English report/display text only; original frozen sources remain local",
+  "training_and_evaluation_logic_unchanged": true,
+  "language": "en",
+  "numeric_experiment_results_unchanged": true
 }

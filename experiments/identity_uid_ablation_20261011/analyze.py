@@ -170,67 +170,67 @@ def json_summary(decision):
 def write_report(records,effects,decision,flat,verified):
     elapsed=(datetime.fromisoformat(verified["finished_utc"])-datetime.fromisoformat(read(HERE/"protocol.json")["started_utc"])).total_seconds()/60
     trained=sum(r["training_seconds_new"] for r in records.values())/60
-    labels={"B00":"共同特征","B10":"共同 + identity","B01":"共同 + UID，关闭 identity","B11":"共同 + identity + UID","B1M":"共同 + identity + UID均值/标准差","B1C":"共同 + identity + UID频率/唯一值数量"}
-    rows=["| Seed | 特征条件 | 列数 | AP ↑ | ROC-AUC ↑ | Recall@1% ↑ | Recall@5% ↑ | Brier ↓ |",
+    labels={"B00":"Common features","B10":"Common + identity","B01":"Common + UID, identity disabled","B11":"Common + identity + UID","B1M":"Common + identity + UID mean/standard deviation","B1C":"Common + identity + UID frequency/unique count"}
+    rows=["| Seed | Feature condition | Columns | AP ↑ | ROC-AUC ↑ | Recall@1% ↑ | Recall@5% ↑ | Brier ↓ |",
           "|---:|---|---:|---:|---:|---:|---:|---:|"]
     for r in flat:
         rows.append(f"| {r['seed']} | {labels[r['variant']]} | {r['feature_count']} | {r['average_precision']:.6f} | {r['roc_auc']:.6f} | {r['recall_top_1pct']:.6f} | {r['recall_top_5pct']:.6f} | {r['brier_score']:.6f} |")
-    effect_rows=["| AP 配对增量 | Seed42 | Seed43 |","|---|---:|---:|"]
+    effect_rows=["| Paired AP effect | Seed42 | Seed43 |","|---|---:|---:|"]
     for name in ["identity|noUID","identity|UID","UID|noIdentity","UID|identity","identity_UID_interaction"]:
         values=[e["average_precision"] for e in effects if e["effect"]==name]
         effect_rows.append(f"| {name} | {values[0]:+.6f} | {values[1]:+.6f} |")
-    priorities="、".join(x["family"] for x in decision["prioritized_candidates"]) or "本次没有获得稳定支持的整体信息族"
-    details="\n".join(f"- {e['effect']}：AP {e['average_precision']:+.6f}。" for e in effects if e["seed"]==42 and ("mean_std" in e["effect"] or "frequency_nunique" in e["effect"]))
-    text=f"""# Identity 与 UID 聚合的匹配消融
+    priorities=", ".join(x["family"] for x in decision["prioritized_candidates"]) or "No complete information family received stable support in this study"
+    details="\n".join(f"- {e['effect']}: AP {e['average_precision']:+.6f}." for e in effects if e["seed"]==42 and ("mean_std" in e["effect"] or "frequency_nunique" in e["effect"]))
+    text=f"""# Matched ablations of identity and UID aggregates
 
-十个冻结条件均完成：九个新训练、一个完整 seed42 模型复用；统一核验 PASS。
-由树模型消融支持的 Transformer 试验优先级：**{priorities}**。
-墙钟耗时 {elapsed:.2f} 分钟，新训练合计 {trained:.2f} 分钟。Transformer 训练状态：**NOT EXECUTED**。
+All ten frozen conditions completed: nine new runs and one reused full seed42 model; unified verification PASS.
+Transformer trial priorities supported by tree ablations: **{priorities}**.
+Wall-clock time: {elapsed:.2f} minutes; total new training: {trained:.2f} minutes. Transformer training status: **NOT EXECUTED**.
 
-## 从输入到预测
+## From inputs to predictions
 
-本轮直接复用上轮 263 列严格训练集拟合缓存：交易记录经过 D 时间归一化、精选 V 列、卡号/地址组合统计等共同转换；
-identity 是设备、浏览器及 id_* 字段；UID 是 card1、addr1 与 day-D1 组合出的伪客户键，转为客户频率、均值、标准差和唯一值数量。
-不同条件只改变列的保留与删除，LightGBM 输出交易欺诈概率，再在同一冻结验证集计算 AP、ROC-AUC、Top-K 与 Brier。
-191 个共同字段始终保留；它们已含卡号/地址级别统计，B00 不是过去的 rich_all/HV 基线。
+This stage reused the prior 263-column TRAIN-fitted cache: common transformations included D time normalization, selected V columns and card/address grouped statistics.
+Identity comprises device, browser and id_* fields. UID is a pseudo-customer key formed from card1, addr1 and day-D1, mapped to customer frequency, mean, standard deviation and unique-value counts.
+Conditions differ only in retained/dropped columns. LightGBM outputs transaction fraud probabilities; AP, ROC-AUC, Top-K and Brier use the same frozen validation set.
+All191 common fields remain, including existing card/address statistics. B00 is not the historical rich_all/HV baseline.
 
-## 完整结果与配对增量
+## Complete results and paired effects
 
 {chr(10).join(rows)}
 
 {chr(10).join(effect_rows)}
 
-identity|UID 的增量包含唯一交叉字段 uid_id_02_ct，它不能被解释为纯原始 identity 字段的独立贡献。
-关闭 identity 时已同时移除该交叉字段。interaction 为 AP(B11)-AP(B10)-AP(B01)+AP(B00)，
-是本协议下的经验模型交互量，不是信息贡献的因果认证。
+The identity|UID effect includes the cross-field uid_id_02_ct, so it is not an isolated contribution from raw identity fields.
+Disabling identity also removes this cross-field. Interaction is AP(B11)-AP(B10)-AP(B01)+AP(B00),
+an empirical model interaction under this protocol, not causal certification of information contributions.
 
-UID 的细分（seed42；其他条件和配方相同）：
+UID subgroups (seed42; all other conditions and the recipe matched):
 
 {details}
 
-## Transformer 移植决策
+## Transformer transfer decision
 
-优先候选和全部原始字段名已保存在 TRANSFORMER_DECISION.json，含类别 identity 与数值 identity 的字段划分。
-UID 均值/标准差有33列，频率/唯一值数量13列；单独的 UID 交易包应删除 uid_id_02_ct。
-数值候选采用训练集拟合的插补与归一化，并保留缺失/未见客户标记；identity 类别字段采用训练词表和 embedding。
-不把 literal UID 或 TransactionID 当作 token 输入。仅有树模型证据，尚未证实这些字段能改善 FTTransformer 或 ExcelTransformer。
+Prioritized candidates and all original field names appear in TRANSFORMER_DECISION.json, including categorical/numeric identity groups.
+UID mean/standard deviation uses 33 columns; frequency/unique counts use 13. A standalone UID transaction bundle should exclude uid_id_02_ct.
+Numeric candidates use train-fitted imputation and normalization, retaining missing/unseen-customer flags; categorical identity uses train vocabularies and embeddings.
+Literal UID and TransactionID are not input tokens. At this stage only tree evidence exists; improvements to FTTransformer or ExcelTransformer are not yet established.
 
-如果某类信息跨 seed 增量符号不一致，应作为条件候选保留，不声称稳定增益；如果增加后 AP 降低，报告负结果。
-UID 细分目前只有 seed42，因此优先级是下一轮受控 Transformer 试验顺序，未完成 Transformer 的最终选择。
-对于流式应用，应重新计算严格 t_j<t_i 的客户历史统计；本轮忠实沿用整个训练分区拟合、验证冻结映射的上轮策略。
+Information with inconsistent effect signs across seeds remains a conditional candidate, not a stable gain. Report a negative result when adding it reduces AP.
+UID subgroups currently have only seed42 evidence, so priorities specify the next controlled Transformer trial order, not a final Transformer selection.
+Streaming applications require customer history with strictly t_j<t_i. This stage retains the prior whole-TRAIN fitting and frozen-validation mapping strategy.
 
-## 可复现证据与限制
+## Reproducible evidence and limitations
 
-- 两个 seed 是42与43，模型参数与上轮一致，仅 seed 改变；AP early-stop150、最多4000棵树，无搜索。
-- 同一413378训练/88581验证切分、同一字段值与预处理、同一缺失 sentinel 解释；只切换特征列。
-- 源目录 {verified['source_files_unchanged']} 个封存文件及原始数据哈希在前后核验一致；未重新运行完成的 seed42 完整基线。
-- 九个新模型逐一从磁盘重载预测，并复算全部指标；完整基线的先前重载核验在哈希未变的条件下复用。
-- strata_metrics.csv 记录已见/未见UID、id_12 是否观测及四个联合子组的全部条件表现；id_12标记是协变量代理，不代表已验证客户身份。
-- 同一验证集已用于多轮研究选择，增量不是独立最终测试结论。两种 seed 反映训练随机性，不构成统计认证。
-- 列采样与 early-stop 会随子集改变；AP 差表示固定训练策略下的经验增量。
-- 这是主实现者的复算与工程核验，没有进行独立子 agent 复算。全部负结果保留，最终测试和官方未标注 test 未使用。
+- Seeds were42 and 43; model settings matched the prior stage except for seed. AP early-stop150, maximum 4000 trees; no search.
+- The same413378 training/88581 validation split, field values, preprocessing and missing-sentinel interpretation were used; only feature columns changed.
+- The source directory's {verified['source_files_unchanged']} sealed files and raw-data hashes matched before and after. The completed full seed42 baseline was not rerun.
+- All nine new models were reloaded from disk for predictions and full metric recomputation. Prior full-baseline replay evidence was reused only with unchanged hashes.
+- strata_metrics.csv retains every condition for seen/unseen UID, observed/missing id_12 and four joint subgroups. id_12 is a covariate proxy, not verified customer identity.
+- Validation was reused across research selections, so effects are not independent final-test conclusions. Two seeds reflect training randomness, not statistical certification.
+- Column sampling and early stopping can change with subsets; AP differences are empirical effects under the fixed training strategy.
+- Recomputation and engineering checks were performed by the implementer, without independent subagent replication. All negative results remain; final test and official unlabeled test were not used.
 
-在 D:\\Year3_Mao_Projects\\sleep_loop\\fraud-detection-mvp 中使用既有环境：
+Run in D:\\Year3_Mao_Projects\\sleep_loop\\fraud-detection-mvp using the existing environment:
 
 ```powershell
 & .\\.venv\\Scripts\\python.exe -X utf8 -B -m experiments.identity_uid_ablation_20261011.preflight
@@ -238,9 +238,9 @@ UID 细分目前只有 seed42，因此优先级是下一轮受控 Transformer �
 & .\\.venv\\Scripts\\python.exe -X utf8 -B -m experiments.identity_uid_ablation_20261011.analyze
 ```
 
-protocol.json、feature_groups.json、preflight.json 保存冻结规则、字段依赖和输入哈希；
-runs/ 保存模型、逐轮历史与验证预测；ablation_results.csv、effects.csv、strata_metrics.csv 保存实际结果；
-verification.json 和 artifact_manifest.json 保存核验与最终文件指纹。
+protocol.json, feature_groups.json, preflight.json store frozen rules, field dependencies and input hashes;
+runs/ stores models, epoch histories and validation predictions;ablation_results.csv, effects.csv, strata_metrics.csv store actual results;
+verification.json and artifact_manifest.json store verification and final file fingerprints.
 """
     (HERE/"REPORT_ZH.md").write_text(text,encoding="utf-8")
 

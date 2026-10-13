@@ -10,7 +10,9 @@
   "smoothing": false,
   "new_training_or_inference": false,
   "test_accessed": false,
-  "visual_review": "PASS_ALL_FOUR_PANELS_AT_ORIGINAL_RESOLUTION; titles, legends, phase labels and captions clear",
+  "visual_review": "PASS_ALL_FOUR_ENGLISH_PANELS_AT_ORIGINAL_RESOLUTION",
   "files": {},
-  "visual_review_utc": "2026-10-13T02:57:50.346693+00:00"
+  "visual_review_utc": "2026-10-13T02:57:50.346693+00:00",
+  "language": "en",
+  "all_input_metrics_unchanged": true
 }
