@@ -1,0 +1,16 @@
+{
+  "status": "PASS_LOG_AND_SELECTED_CHECKPOINT_CONSISTENCY",
+  "parent_epochs": 16,
+  "continuation_epochs_each": 25,
+  "additional_epochs_each": 20,
+  "total_lineage_epochs_each": 41,
+  "selected_continuation_epoch": 22,
+  "selected_lineage_epoch": 38,
+  "sources_unchanged": true,
+  "smoothing": false,
+  "new_training_or_inference": false,
+  "test_accessed": false,
+  "visual_review": "PASS_ALL_FOUR_PANELS_AT_ORIGINAL_RESOLUTION; titles, legends, phase labels and captions clear",
+  "files": {},
+  "visual_review_utc": "2026-10-13T02:57:50.346693+00:00"
+}

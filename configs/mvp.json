@@ -1,0 +1,48 @@
+{
+  "seed": 42,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "smoke_rows": 30000,
+  "categorical_max_values": 2048,
+  "categorical_min_count": 2,
+  "missing_indicator_min_rate": 0.01,
+  "missing_indicator_max_rate": 0.99,
+  "numeric_log1p": [
+    "TransactionAmt"
+  ],
+  "positive_weight": "clip(sqrt(n_negative/n_positive),1,10); training only",
+  "lightgbm": {
+    "n_estimators": 1200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "max_depth": 8,
+    "min_child_samples": 100,
+    "subsample": 0.8,
+    "subsample_freq": 1,
+    "colsample_bytree": 0.9,
+    "reg_lambda": 5.0,
+    "n_jobs": 8,
+    "early_stopping_rounds": 75,
+    "max_training_seconds": 1200
+  },
+  "ft_transformer": {
+    "d_block": 64,
+    "n_blocks": 2,
+    "attention_n_heads": 4,
+    "attention_dropout": 0.15,
+    "ffn_d_hidden_multiplier": 1.3333333333333333,
+    "ffn_dropout": 0.15,
+    "residual_dropout": 0.1,
+    "batch_size": 512,
+    "learning_rate": 0.0003,
+    "weight_decay": 1e-05,
+    "max_epochs": 10,
+    "patience": 3,
+    "max_training_seconds": 1800,
+    "max_estimated_seconds": 1800,
+    "mixed_precision": true
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETED_AND_VERIFIED",
+  "comparison_scope": "Same chronological development-validation transactions; pipeline comparison against original MVP",
+  "validation_transactions": 88581,
+  "validation_fraud": 3042,
+  "review_budget": 886,
+  "stages": {
+    "original_lightgbm": {
+      "ap": 0.5896844192421578,
+      "captured_top1": 789,
+      "review_count": 886
+    },
+    "basic_excel_b00": {
+      "ap": 0.5734505229256955,
+      "captured_top1": 804,
+      "review_count": 886
+    },
+    "enriched_excel_b1c_parent": {
+      "ap": 0.6019160318451662,
+      "captured_top1": 822,
+      "review_count": 886
+    },
+    "current_bce_excel": {
+      "ap": 0.6366325980521217,
+      "captured_top1": 830,
+      "review_count": 886
+    }
+  },
+  "additional_fraud_captured_vs_original_lightgbm": 41,
+  "feature_pipeline_ap_delta": 0.02846550891947064,
+  "later_bce_training_ap_delta": 0.03471656620695551,
+  "selected_model": "bce_control",
+  "selected_epoch": 22,
+  "stopping_reason": "ADDITIONAL_EPOCH_CAP",
+  "early_stopping_configured": true,
+  "early_stopping_triggered": false,
+  "mathematical_convergence_established": false,
+  "distillation_ap": 0.6349351811923136,
+  "distillation_minus_bce_ap": -0.0016974168598079542,
+  "matched_enriched_lightgbm_ap": 0.6877080964842449,
+  "fresh_checkpoint_replays": 2,
+  "saved_prediction_rescore": "PASS_CPU_NUMPY_WITH_IDENTICAL_IDS_AND_LABELS",
+  "independent_replication_performed": false,
+  "followup_test_accessed": false,
+  "earliest_mvp_test_scope": "The original 52-field LightGBM/FT benchmark separately evaluated its held-out split. Its test score is not used in this development comparison.",
+  "dataset_weights_and_row_predictions_published": false
+}

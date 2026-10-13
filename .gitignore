@@ -1,0 +1,26 @@
+# Keep datasets, credentials, environments and weights local.
+data/
+models/
+.venv/
+.cache/
+.kaggle/
+.env
+.env.*
+credentials*
+kaggle.json
+__pycache__/
+*.py[cod]
+*.pt
+*.pth
+*.pkl
+*.joblib
+*.npy
+*.npz
+*.zip
+*.log
+tmp/
+experiments/**/derived/
+experiments/**/runs/
+experiments/**/artifact_store/
+results/prepared/
+results/**/predictions_*.csv

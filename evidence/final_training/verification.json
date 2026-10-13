@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "every_new_complete_epoch_numpy_rescore": true,
+  "full_validation_rows": 88581,
+  "full_validation_fraud": 3042,
+  "fresh_model_replays": 2,
+  "paired_sampler_and_mix_streams": "PASS",
+  "restored_optimizer_and_rng": "PASS",
+  "original_five_epoch_evidence_files_unchanged": 110,
+  "old_budget_preserved": true,
+  "original_excel_matrix_remains_paused": true,
+  "independent_replication_performed": false,
+  "test_accessed": false,
+  "finished_utc": "2026-10-13T00:59:30.547260+00:00"
+}

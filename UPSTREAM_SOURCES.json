@@ -1,0 +1,26 @@
+{
+  "excelformer": [
+    {
+      "architecture": "excel",
+      "repository": "WhatAShot/ExcelFormer",
+      "file": "bin/excel_former.py"
+    },
+    {
+      "architecture": "excel",
+      "repository": "WhatAShot/ExcelFormer",
+      "file": "lib/deep.py"
+    },
+    {
+      "architecture": "excel",
+      "repository": "WhatAShot/ExcelFormer",
+      "file": "lib/aug_utils.py"
+    },
+    {
+      "architecture": "excel",
+      "file": "LICENSE",
+      "error": "HTTP Error 404: Not Found"
+    }
+  ],
+  "adaptation_description": "Official core unchanged except isolated lib import. Extracted official activation functions and complete augmentation utilities. No KV compression. Reduced width/heads and bounded AP stopping; ordered historical categorical encoding and train-only MI.",
+  "vendor_code_redistributed": false
+}

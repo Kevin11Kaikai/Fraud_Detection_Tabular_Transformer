@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "ast_files": 11,
+  "original_files_unchanged": 53,
+  "paired_epochs_verified": 5,
+  "fresh_replay_max_errors": [
+    0.0,
+    0.0
+  ],
+  "selected_source_run": "bce_control",
+  "active_gpu_seconds": 4423.53489,
+  "queue_wait_seconds": 7614.5320000000065,
+  "budget_inflight": null,
+  "test_accessed": false,
+  "cache_reuse_cli_passed_without_new_gpu_time": true,
+  "report_plots_visually_checked": true,
+  "finished_utc": "2026-10-12T18:18:41.237770+00:00"
+}

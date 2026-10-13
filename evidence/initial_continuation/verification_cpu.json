@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "immutable": {
+    "status": "PASS",
+    "verified_files": 53,
+    "test_accessed": false
+  },
+  "metric_rescore": "PASS",
+  "row_alignment": "PASS",
+  "paired_sampler_and_hid_mix": "PASS",
+  "teacher_targets": "PASS",
+  "common_completed_epochs": 5,
+  "paired_selected_epochs": {
+    "bce_control": 5,
+    "xgb_kd_lambda1": 5
+  },
+  "test_accessed": false,
+  "finished_utc": "2026-10-12T18:03:51.020042+00:00"
+}

@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETED",
+  "model": "LightGBM",
+  "mode": "full",
+  "finished_utc": "2026-10-10T04:16:50.585733+00:00",
+  "settings": {
+    "n_estimators": 1200,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "max_depth": 8,
+    "min_child_samples": 100,
+    "subsample": 0.8,
+    "subsample_freq": 1,
+    "colsample_bytree": 0.9,
+    "reg_lambda": 5.0,
+    "n_jobs": 8
+  },
+  "seed": 42,
+  "scale_pos_weight": 5.237777208312512,
+  "calibration": "weighted raw probabilities; not recalibrated",
+  "best_iteration": 940,
+  "best_validation_ap": 0.5896844192421578,
+  "training_seconds": 24.427653999999166,
+  "device": "CPU",
+  "peak_gpu_allocated_mib": null,
+  "peak_gpu_reserved_mib": null
+}

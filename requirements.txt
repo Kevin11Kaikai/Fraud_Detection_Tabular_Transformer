@@ -1,0 +1,11 @@
+# Python 3.12. CUDA PyTorch must be installed from the official CUDA wheel index.
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.1
+matplotlib==3.9.2
+psutil==5.9.0
+lightgbm==4.6.0
+rtdl-revisiting-models==0.0.2
+torch==2.5.1
+kaggle==1.7.4.5

@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "kind": "self-recomputation",
+  "checked_utc": "2026-10-10T04:18:17.400078+00:00",
+  "metrics": {
+    "LightGBM": {
+      "roc_auc": 0.885381679056562,
+      "average_precision": 0.49141757878324255,
+      "recall_top_1pct": 0.239701589361012,
+      "precision_top_1pct": 0.8340857787810384,
+      "recall_top_5pct": 0.5595199481024976,
+      "brier_score": 0.026206280633410326,
+      "n_test": 88581,
+      "n_fraud": 3083,
+      "fraud_prevalence": 0.03480430340592226,
+      "top_1pct_count": 886,
+      "top_5pct_count": 4430,
+      "top_1pct_actual_fraction": 0.010002144929499555,
+      "top_5pct_actual_fraction": 0.05001072464749777
+    },
+    "FT-Transformer": {
+      "roc_auc": 0.8400057757808372,
+      "average_precision": 0.3929956116795214,
+      "recall_top_1pct": 0.22607849497242946,
+      "precision_top_1pct": 0.7866817155756207,
+      "recall_top_5pct": 0.4326954265325981,
+      "brier_score": 0.04412480962083495,
+      "n_test": 88581,
+      "n_fraud": 3083,
+      "fraud_prevalence": 0.03480430340592226,
+      "top_1pct_count": 886,
+      "top_5pct_count": 4430,
+      "top_1pct_actual_fraction": 0.010002144929499555,
+      "top_5pct_actual_fraction": 0.05001072464749777
+    }
+  }
+}
